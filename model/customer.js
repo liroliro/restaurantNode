@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 
+let Schema = mongoose.Schema;
 
-
-var Schema = mongoose.Schema;
-
-var CostumerSchema = new Schema({
-
-    id: number,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phone: string,
+let CustomerSchema = new Schema({
+    id: Number,
+    firstName: String,
+    lastName: String,
+    email: String,
+    phone: String,
 });
 
-module.exports = mongoose.model('Costumer', CostumerSchema);
+const CS = mongoose.model('Customer', CustomerSchema);
+
+module.exports = CS;

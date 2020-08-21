@@ -1,17 +1,16 @@
 const mongoose = require('mongoose');
 
+let Schema = mongoose.Schema;
 
-
-var Schema = mongoose.Schema;
-
-var BookingSchema = new Schema({
-
-    id: number,
-    date: string,
-    time: string,
-    quantity: number,
-    message: string,
-    customerId: number,
+let BookingSchema = new Schema({
+    id: Number,
+    date: String,
+    time: String,
+    quantity: Number,
+    message: String,
+    customerId: Number,
 });
 
-module.exports = mongoose.model('Booking', BookingSchema);
+const BS = mongoose.model('Booking', BookingSchema);
+
+module.exports = BS;
