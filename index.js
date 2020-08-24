@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const config = require('./config/config');
 
 const sassMiddleware = require("node-sass-middleware");
+const bodyParser = require('body-parser')
 const mainRouter = require('./router/mainRouter');
 const path = require('path');
 
@@ -14,6 +15,8 @@ app.use(sassMiddleware({
     src: path.join(__dirname, "scss"),
     // dest: path.join(__dirname, "public")
 }));
+
+app.use(bodyParser.json())
 
 app.set('view engine', 'ejs');
 
