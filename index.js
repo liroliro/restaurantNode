@@ -5,12 +5,14 @@ const config = require('./config/config');
 const bodyParser = require('body-parser')
 const mainRouter = require('./router/mainRouter');
 const path = require('path');
+const cors = require('cors')
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }))
 
 app.use(bodyParser.json())
+app.use(cors)
 
 // Routing
 app.use(mainRouter)
