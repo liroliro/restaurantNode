@@ -4,7 +4,7 @@ let Schema = mongoose.Schema;
 
 let BookingSchema = new Schema({
 	date: String,
-	time: String,
+	time: Number,
 	guests: Number,
 	message: String,
 	customerId: {
