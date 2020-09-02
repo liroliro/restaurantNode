@@ -53,17 +53,24 @@ router.post('/', async (req, res) => {
 
 router.delete('/delete/:id', async (req, res) => {
 	await BookingModel.deleteOne({ _id: req.params.id });
+
+	res.send('booking deleted');
 });
 
 router.put('/update/:id', async (req, res) => {
-	await BookingModel.updateOne({ _id: req.params.id });
-});
+	await BookingModel.updateOne(
+		{ _id: req.params.id },
+		{
+			$set: {
+				date: req.body.newBooking.date,
+				time: req.body.newBooking.time,
+				guests: req.body.newBooking.guests,
+				message: req.body.newBooking.message,
+			},
+		}
+	);
 
-// Gammalt
-// router.get('/deleteWishlist/:id', verifyToken, async (req, res) => {
-// 	const user = await User.findOne({ _id: req.user.user._id });
-// 	await user.removeFromList(req.params.id);
-// 	res.redirect('/wishlist');
-// });
+	res.send('booking updated');
+});
 
 module.exports = router;
