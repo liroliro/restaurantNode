@@ -40,7 +40,6 @@ router.get('/customers', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	const user = await CustomerModel.findOne({ email: req.body.email });
-	console.log(user)
 
 	if (!user) {
 		new CustomerModel({
@@ -60,6 +59,7 @@ router.post('/', async (req, res) => {
 					message: (string = req.body.message),
 					customerId: (string = newUser._id),
 				}).save().then((booking)=> {
+
 					const newBooking = {
 						newUser,
 						booking
@@ -98,11 +98,6 @@ router.post('/', async (req, res) => {
 			message: (string = req.body.message),
 			customerId: (string = user._id),
 		}).save().then((booking)=> {
-			const newBooking = {
-				user,
-				booking
-			}
-
 			let mailContent = {
 				from: 'restaurantdinnerspace@gmail.com',
 				to: user.email,
@@ -120,8 +115,13 @@ router.post('/', async (req, res) => {
 				} else {
 					console.log('Email sent (info.response): ', info.response);
 				}
-		
+	
 			});
+
+			const newBooking = {
+				user,
+				booking
+			}
 	
 			res.send(newBooking)
 		});
@@ -154,8 +154,6 @@ router.delete('/delete/:id', async (req, res) => {
 			console.log(error);
 		} else {
 			console.log('Email sent (info.response): ', info.response);
-			/* 	console.log(guest); */
-			console.log(booking);
 		}
 	});
 	booking.delete();
