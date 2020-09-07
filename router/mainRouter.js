@@ -13,6 +13,11 @@ router.get('/bookings', async (req, res) => {
 	res.send(bookings);
 });
 
+router.get('/delete/:id', async (req, res) => {
+	await BookingModel.deleteOne({ _id: req.params.id });
+	res.send('delete done')
+});
+
 router.get('/customers', async (req, res) => {
 	const customers = await CustomerModel.find();
 	res.send(customers);
@@ -38,8 +43,17 @@ router.post('/', async (req, res) => {
 					guests: (number = req.body.guests),
 					message: (string = req.body.message),
 					customerId: (string = newUser._id),
-				}).save();
+				}).save().then((booking)=> {
+					const newBooking = {
+						newUser,
+						booking
+					}
+
+					res.send(newBooking)
+				});
+
 			});
+
 	} else {
 		new BookingModel({
 			date: (number = req.body.date),
@@ -47,23 +61,21 @@ router.post('/', async (req, res) => {
 			guests: (number = req.body.guests),
 			message: (string = req.body.message),
 			customerId: (string = user._id),
-		}).save();
-	}
-});
+		}).save().then((booking)=> {
 
-router.delete('/delete/:id', async (req, res) => {
-	await BookingModel.deleteOne({ _id: req.params.id });
+			const newBooking = {
+				user,
+				booking
+			}
+	
+			res.send(newBooking)
+		});
+
+	}
 });
 
 router.put('/update/:id', async (req, res) => {
 	await BookingModel.updateOne({ _id: req.params.id });
 });
-
-// Gammalt
-// router.get('/deleteWishlist/:id', verifyToken, async (req, res) => {
-// 	const user = await User.findOne({ _id: req.user.user._id });
-// 	await user.removeFromList(req.params.id);
-// 	res.redirect('/wishlist');
-// });
 
 module.exports = router;
