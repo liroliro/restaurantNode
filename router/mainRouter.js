@@ -1,11 +1,26 @@
 const express = require('express');
 const router = express.Router();
-
-// const nodeMailer = require("nodemailer");
-// const sendGridTransport = require("nodemailer-sendgrid-transport");
-
+const nodemailer = require('nodemailer');
+const config = require('../config/config');
 const BookingModel = require('../model/booking');
 const CustomerModel = require('../model/customer');
+
+
+let smtpConfig = {
+	host: 'smtp.gmail.com',
+	port: 465,
+	secure: true, // use SSL
+
+	auth: {
+		user: config.email,
+		pass: config.password,
+	}
+};
+
+let transporter = nodemailer.createTransport(smtpConfig);
+
+
+
 
 router.get('/bookings', async (req, res) => {
 	const bookings = await BookingModel.find();
@@ -25,6 +40,7 @@ router.get('/customers', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	const user = await CustomerModel.findOne({ email: req.body.email });
+	console.log(user)
 
 	if (!user) {
 		new CustomerModel({
@@ -49,6 +65,26 @@ router.post('/', async (req, res) => {
 						booking
 					}
 
+					let mailContent = {
+						from: 'restaurantdinnerspace@gmail.com',
+						to: user.email,
+						subject: `Välkommen till DinnerSpace ${user.firstName}`,
+						text: `Välkommen till Dinner Space ${user.firstName + " " + user.lastName}. 
+						Du har bokat bord hos oss den ${booking.date} klockan ${booking.time}.00.
+						Vi hoppas ni får en trevlig middag hos oss. Skulle ni behöva göra ändringar i er bokning
+						är ni välkomna att ringa oss på telefonnummer 08-123 345`
+					};
+				
+					transporter.sendMail(mailContent, function (error, info) {
+				
+						if (error) {
+							console.log(error);
+						} else {
+							console.log('Email sent (info.response): ', info.response);
+						}
+				
+					});
+
 					res.send(newBooking)
 				});
 
@@ -62,20 +98,87 @@ router.post('/', async (req, res) => {
 			message: (string = req.body.message),
 			customerId: (string = user._id),
 		}).save().then((booking)=> {
-
 			const newBooking = {
 				user,
 				booking
 			}
+
+			let mailContent = {
+				from: 'restaurantdinnerspace@gmail.com',
+				to: user.email,
+				subject: `Välkommen till DinnerSpace ${user.firstName}`,
+				text: `Välkommen till Dinner Space ${user.firstName + " " + user.lastName}. 
+				Du har bokat bord hos oss den ${booking.date} klockan ${booking.time}.00.
+				Vi hoppas ni får en trevlig middag hos oss. Skulle ni behöva göra ändringar i er bokning
+				är ni välkomna att ringa oss på telefonnummer 08-123 345`
+			};
+		
+			transporter.sendMail(mailContent, function (error, info) {
+		
+				if (error) {
+					console.log(error);
+				} else {
+					console.log('Email sent (info.response): ', info.response);
+				}
+		
+			});
 	
 			res.send(newBooking)
 		});
 
-	}
+	};
 });
 
+router.delete('/delete/:id', async (req, res) => {
+
+	const booking = await BookingModel.findOne({ _id: req.params.id });
+	const guest = await CustomerModel.findOne({
+		_id: booking.customerId
+
+	});
+
+	let mailDeleteContent = {
+		from: 'restaurantdinnerspace@gmail.com',
+		to: guest.email,
+		subject: `Din avbokning hos DinnerSpace ${guest.firstName}.`,
+		text: `Hej ${guest.firstName + " " + guest.lastName}.
+	Här kommer en bekräftelse på din avbokning för ${ booking.date} klockan ${booking.time} .00.
+	Vi hoppas vi ses en annan gång.
+		Hälsningar
+	gänget på DinnerSpace`
+	};
+
+	transporter.sendMail(mailDeleteContent, function (error, info) {
+
+		if (error) {
+			console.log(error);
+		} else {
+			console.log('Email sent (info.response): ', info.response);
+			/* 	console.log(guest); */
+			console.log(booking);
+		}
+	});
+	booking.delete();
+	res.send();
+
+});
+
+
+
 router.put('/update/:id', async (req, res) => {
-	await BookingModel.updateOne({ _id: req.params.id });
+	await BookingModel.updateOne(
+		{ _id: req.params.id },
+		{
+			$set: {
+				date: req.body.newBooking.date,
+				time: req.body.newBooking.time,
+				guests: req.body.newBooking.guests,
+				message: req.body.newBooking.message,
+			},
+		}
+	);
+
+	res.send('booking updated');
 });
 
 module.exports = router;
