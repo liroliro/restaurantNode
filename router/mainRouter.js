@@ -131,7 +131,19 @@ router.delete('/delete/:id', async (req, res) => {
 
 
 router.put('/update/:id', async (req, res) => {
-	await BookingModel.updateOne({ _id: req.params.id });
+	await BookingModel.updateOne(
+		{ _id: req.params.id },
+		{
+			$set: {
+				date: req.body.newBooking.date,
+				time: req.body.newBooking.time,
+				guests: req.body.newBooking.guests,
+				message: req.body.newBooking.message,
+			},
+		}
+	);
+
+	res.send('booking updated');
 });
 
 module.exports = router;
